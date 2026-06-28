@@ -15,42 +15,30 @@ The system goes beyond keyword matching by combining semantic search, lexical re
 ---
 
 ## Architecture
-Stage 0 (Offline, unlimited time)
 
-Parse + enrich 100K candidates
+### Stage 0 (Offline, unlimited time)
+- Parse + enrich 100K candidates
+- Detect honeypot profiles (rule-based, 6 hard + 6 soft rules)
+- Bi-encoder embeddings (all-MiniLM-L6-v2) + FAISS IVF-Flat index
+- BM25 index over profile text
+- 23-signal behavioral matrix
 
-Detect honeypot profiles (rule-based, 6 hard + 6 soft rules)
+### Stage 1 (Online, <10s)
+- Parse JD - hard knockouts, skill tiers, signal weights, recency hints
+- FAISS semantic retrieval - top 2000
+- BM25 lexical retrieval - top 2000
+- Reciprocal Rank Fusion - top 700 pool
 
-Bi-encoder embeddings (all-MiniLM-L6-v2) + FAISS IVF-Flat index
+### Stage 2 (Online, ~110s)
+- Cross-encoder re-ranking (ms-marco-MiniLM-L-6-v2) on 700 pairs
+- Behavioral signal scoring - dot product against JD-derived weight vector
+- Score fusion - CE x 0.55 + signal x 0.30 + BM25 x 0.15
+- Honeypot penalty - 0.05-0.95x multiplier based on confidence
+- Consulting-firm disqualifier - 0.1x multiplier
 
-BM25 index over profile text
-
-23-signal behavioral matrix
-Stage 1 (Online, <10s)
-
-Parse JD - hard knockouts, skill tiers, signal weights, recency hints
-
-FAISS semantic retrieval - top 2000
-
-BM25 lexical retrieval - top 2000
-
-Reciprocal Rank Fusion - top 700 pool
-Stage 2 (Online, ~110s)
-
-Cross-encoder re-ranking (ms-marco-MiniLM-L-6-v2) on 700 pairs
-
-Behavioral signal scoring - dot product against JD-derived weight vector
-
-Score fusion - CE x 0.55 + signal x 0.30 + BM25 x 0.15
-
-Honeypot penalty - 0.05-0.95x multiplier based on confidence
-
-Consulting-firm disqualifier - 0.1x multiplier
-Stage 3 (Online, <1s)
-
-Sort, enforce monotonicity, join reasoning cache
-
-Output ranked CSV
+### Stage 3 (Online, <1s)
+- Sort, enforce monotonicity, join reasoning cache
+- Output ranked CSV
 
 ---
 
@@ -85,15 +73,10 @@ pip install -r requirements.txt
 ```
 
 Place the hackathon bundle files in `data/`:
-data/
-
-candidates.jsonl.gz
-
-job_description.md
-
-redrob_signals_doc.md
-
-candidate_schema.json
+- `data/candidates.jsonl.gz`
+- `data/job_description.md`
+- `data/redrob_signals_doc.md`
+- `data/candidate_schema.json`
 
 ---
 
