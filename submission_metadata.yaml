@@ -1,0 +1,77 @@
+# Redrob Hackathon — Submission Metadata
+
+# ============================================================================
+# Team identity
+# ============================================================================
+team_name: "your-team-name-here"
+
+primary_contact:
+  name: "Your Name"
+  email: "your@email.com"
+  phone: "+91-XXXXXXXXXX"
+
+team_members:
+  - name: "Your Name"
+    email: "your@email.com"
+    role: "ML Engineer"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+github_repo: "https://github.com/YOUR_USERNAME/redrob-ranker"
+
+sandbox_link: "https://huggingface.co/spaces/YOUR_USERNAME/redrob-ranker"
+
+reproduce_command: "python rank.py --candidates ./data/candidates.jsonl --jd ./data/job_description.docx --out ./submission.csv"
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "Windows PC"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.11"
+  os: "Windows 11"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: true
+  pre_computation_time_minutes: 25
+
+# ============================================================================
+# AI tools declaration
+# ============================================================================
+ai_tools_used:
+  - "Claude"
+
+ai_usage_summary: |
+  Used Claude for code architecture design, code review, and debugging.
+  No candidate data was fed to any LLM during the ranking step.
+  Reasoning generation uses rule-based templates (no LLM API calls during ranking).
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  Three-stage hybrid pipeline with 9 surgical hardening upgrades. 
+  (1) Dual retrieval via FAISS semantic search (all-MiniLM-L6-v2 embeddings) 
+  and BM25 lexical search, fused with Reciprocal Rank Fusion to produce an 
+  expanded 700-candidate pool. 
+  (2) Cross-encoder re-ranking (ms-marco-MiniLM-L-6-v2) combined with 23 
+  behavioral signal scores. The JD parser extracts hackathon hints to dynamically 
+  adjust signal weights (emphasizing availability and recruiter response).
+  Recency multipliers and skill-match bonuses are applied.
+  Advanced honeypot detection uses 12 rules (6 HARD, 6 SOFT) with graduated
+  penalties to catch fabricated timelines and skill contradictions.
+  (3) Rule-based tiered reasoning generation with opener rotation.
+  Total ranking runtime: <150s on CPU.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
